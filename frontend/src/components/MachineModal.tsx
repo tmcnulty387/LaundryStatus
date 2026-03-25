@@ -1,11 +1,10 @@
 import {
-  useEffect,
   useState,
   type Dispatch,
   type SetStateAction,
   type SubmitEvent,
 } from "react";
-import { getMachineStatusLabel, getMachineTimer, type Machine } from "../utils";
+import { type Machine, type MachineStatus } from "../utils";
 import ReservationModal from "./ReservationModal";
 
 const apiUrl = import.meta.env.VITE_API_URL ?? "";
@@ -15,6 +14,7 @@ type MachineModalProps = {
   roomSlug: string;
   onMachineUpdated: () => void;
   onClose: () => void;
+  machineStatus: MachineStatus;
 };
 
 function handleReservationSubmit(
@@ -88,10 +88,8 @@ function MachineModal({
   roomSlug,
   onMachineUpdated,
   onClose,
+  machineStatus,
 }: MachineModalProps) {
-  const [nowSec, setNowSec] = useState(Math.floor(Date.now() / 1000));
-  const status = getMachineStatusLabel(machine, nowSec);
-  const timer = getMachineTimer(machine, nowSec);
   const [showReservation, setShowReservation] = useState(false);
   const [reserveMinutesInput, setReserveMinutesInput] = useState("30");
   const parsedReserveMinutes = Number(reserveMinutesInput);
@@ -102,18 +100,6 @@ function MachineModal({
   const reserveMinutesError = isReserveMinutesValid
     ? null
     : "Enter a whole number of minutes between 1 and 180.";
-  const isAlreadyAvailable = status === "Available";
-  const isAlreadyOutOfOrder = status === "Out of Order";
-
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setNowSec(Math.floor(Date.now() / 1000));
-    }, 1000);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, []);
 
   if (showReservation)
     return (
@@ -139,8 +125,10 @@ function MachineModal({
             {machine.is_washer ? `Washer` : `Dryer`} {machine.id}
           </h2>
           <div className="status-container">
-            <p className="modal-status">{status}</p>
-            {timer && <p className="modal-timer">{timer}</p>}
+            <p className="modal-status">{machineStatus.label}</p>
+            {machineStatus.timer && (
+              <p className="modal-timer">{machineStatus.timer}</p>
+            )}
           </div>
         </div>
 
@@ -197,7 +185,7 @@ function MachineModal({
                 onClose,
               )
             }
-            disabled={isAlreadyAvailable}
+            disabled={machineStatus.isAvailable}
           >
             Available
           </button>
@@ -212,7 +200,7 @@ function MachineModal({
                 onClose,
               )
             }
-            disabled={isAlreadyOutOfOrder}
+            disabled={!machine.is_operational}
           >
             Out of Order
           </button>

@@ -26,7 +26,7 @@ function handleSubmit(
   e.preventDefault();
 
   const apiUrl = import.meta.env.VITE_API_URL ?? "";
-  const endAt = Math.floor(Date.now() / 1000) + minutes * 60;
+  const endAt = Date.now() + minutes * 60000;
 
   fetch(`${apiUrl}/api/rooms/${roomSlug}/machines/${machineId}/reserve`, {
     method: "PUT",

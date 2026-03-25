@@ -1,9 +1,8 @@
-
 export type Machine = {
-  id: number;
+  id: number; // In room ID, unique within the room
   is_operational: boolean;
   is_washer: boolean;
-  end_at: number | null;
+  end_at: number | null; // Unix timestamp in milliseconds
 };
 
 export type RoomData = {
@@ -11,65 +10,49 @@ export type RoomData = {
   dryers: Machine[];
 };
 
-type MachineStatus = {
+export type MachineStatus = {
   isAvailable: boolean;
-  status: string;
+  label: string;
   timer: string | null;
 };
 
-function getNowSec(): number {
-  return Math.floor(Date.now() / 1000);
-}
-
-function getRemainingSeconds(machine: Machine, nowSec: number): number {
+function getRemainingSeconds(machine: Machine, nowMs = Date.now()): number {
   if (!machine.end_at) {
     return 0;
   }
 
-  const diffSeconds = machine.end_at - nowSec;
+  const diffSeconds = (machine.end_at - nowMs) / 1000;
 
-  return diffSeconds > 0 ? diffSeconds : 0;
+  return diffSeconds > 0 ? Math.floor(diffSeconds) : 0;
 }
 
-export function isMachineAvailable(machine: Machine, nowSec = getNowSec()): boolean {
-  if (!machine.is_operational) {
-    return false;
-  }
-
-  return getRemainingSeconds(machine, nowSec) === 0;
-}
-
-export function getMachineStatusLabel(
+export function getMachineStatus(
   machine: Machine,
-  nowSec = getNowSec(),
-): "Available" | "In Use" | "Out of Order" {
+  nowMs = Date.now(),
+): MachineStatus {
   if (!machine.is_operational) {
-    return "Out of Order";
+    return {
+      isAvailable: false,
+      label: "Out of Order",
+      timer: null,
+    };
   }
 
-  return getRemainingSeconds(machine, nowSec) > 0 ? "In Use" : "Available";
-}
-
-export function getMachineTimer(machine: Machine, nowSec = getNowSec()): string | null {
-  const totalSeconds = getRemainingSeconds(machine, nowSec);
-
+  const totalSeconds = getRemainingSeconds(machine, nowMs);
   if (totalSeconds === 0) {
-    return null;
+    return {
+      isAvailable: true,
+      label: "Available",
+      timer: null,
+    };
   }
 
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
 
-  return `${minutes}:${String(seconds).padStart(2, "0")}`;
-}
-
-export function getMachineStatus(machine: Machine, nowSec = getNowSec()): MachineStatus {
-  const status = getMachineStatusLabel(machine, nowSec);
-  const timer = getMachineTimer(machine, nowSec);
-
   return {
-    isAvailable: status === "Available",
-    status,
-    timer,
+    isAvailable: false,
+    label: "In Use",
+    timer: `${minutes}:${String(seconds).padStart(2, "0")}`,
   };
 }

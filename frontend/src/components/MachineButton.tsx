@@ -1,14 +1,9 @@
-import type { Machine } from "../utils";
+import { getMachineStatus, type Machine } from "../utils";
 import washerImg from "../assets/washer.svg";
 import drierImg from "../assets/drier.svg";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import MachineModal from "./MachineModal";
-import {
-  getMachineStatusLabel,
-  getMachineTimer,
-  isMachineAvailable,
-} from "../utils";
 import { clsx } from "clsx";
 
 type MachineButtonProps = {
@@ -23,11 +18,11 @@ function MachineButton({
   onMachineUpdated,
 }: MachineButtonProps) {
   const [showModal, setShowModal] = useState(false);
-  const [nowSec, setNowSec] = useState(Math.floor(Date.now() / 1000));
+  const [nowMs, setNowMs] = useState(Date.now());
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
-      setNowSec(Math.floor(Date.now() / 1000));
+      setNowMs(Date.now());
     }, 1000);
 
     return () => {
@@ -35,14 +30,15 @@ function MachineButton({
     };
   }, []);
 
-  const isAvailable = isMachineAvailable(machine, nowSec);
-  const status = getMachineStatusLabel(machine, nowSec);
-  const timer = getMachineTimer(machine, nowSec);
+  const machineStatus = getMachineStatus(machine, nowMs);
+
   return (
     <>
       <button
         key={machine.id}
-        className={clsx("machine-button", { "not-available": !isAvailable })}
+        className={clsx("machine-button", {
+          "not-available": !machineStatus.isAvailable,
+        })}
         onClick={() => setShowModal(true)}
       >
         <img
@@ -54,7 +50,9 @@ function MachineButton({
           height={400}
         />
         <span className="machine-number">#{machine.id}</span>
-        <span className="machine-status">{timer ? timer : status}</span>
+        <span className="machine-status">
+          {machineStatus.timer ? machineStatus.timer : machineStatus.label}
+        </span>
       </button>
       {showModal &&
         createPortal(
@@ -63,6 +61,7 @@ function MachineButton({
             roomSlug={roomSlug}
             onMachineUpdated={onMachineUpdated}
             onClose={() => setShowModal(false)}
+            machineStatus={machineStatus}
           />,
           document.body,
         )}

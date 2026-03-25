@@ -50,16 +50,12 @@ func getTime(value pgtype.Timestamptz) *int64 {
 	if !value.Valid || value.Time.Before(time.Now()) {
 		return nil
 	}
-	epoch := timeToEpoch(value.Time)
+	epoch := value.Time.UnixMilli() // JS Date.now() returns milliseconds
 	return &epoch
 }
 
 func epochToTime(value int64) time.Time {
-	return time.Unix(value, 0)
-}
-
-func timeToEpoch(value time.Time) int64 {
-	return value.Unix()
+	return time.UnixMilli(value)
 }
 
 type createReservationBody struct {
