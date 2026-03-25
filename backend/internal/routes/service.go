@@ -182,9 +182,9 @@ func (s *svc) awaitReservationEnd(ctx context.Context, args reservationParams) e
 	}); err != nil {
 		return err
 	}
-	if args.PhoneNumber != nil && s.cfg.SMSEnabled {
+	if args.PhoneNumber != nil {
 		log.Printf("Sending SMS to %s for reservation end", *args.PhoneNumber)
-		sms.SendSms(s.cfg, *args.PhoneNumber)
+		sms.SendSms(s.cfg, *args.PhoneNumber) // checks if sms is enabled internally
 	}
 	log.Printf("Reservation successfully ended: %s %d %s", args.RoomSlug, args.MachineID, args.EndAt)
 	return nil
