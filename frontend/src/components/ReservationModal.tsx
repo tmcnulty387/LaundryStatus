@@ -1,4 +1,6 @@
 import { useState, type SubmitEvent } from "react";
+import "react-phone-number-input/style.css";
+import PhoneInput from "react-phone-number-input";
 import type { Machine } from "../utils";
 
 type ReservationModalProps = {
@@ -11,15 +13,15 @@ type ReservationModalProps = {
 
 // PUT /api/rooms/{room_slug}/machines/{machine_id}/reserve
 // {
-//     "end_at": 1700000000,
-//     "phone_number": "(555) 123-4567" // optional
+//     "end_at": 1700000000000,
+//     "phone_number": "+15551234567" // optional
 // }
 function handleSubmit(
   e: SubmitEvent<HTMLFormElement>,
   minutes: number,
   roomSlug: string,
   machineId: number,
-  phoneNumber: string,
+  phoneNumber: string | undefined,
   onSuccess: () => void,
   onClose: () => void,
 ) {
@@ -33,7 +35,7 @@ function handleSubmit(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       end_at: endAt,
-      phone_number: phoneNumber || undefined,
+      phone_number: phoneNumber,
     }),
   })
     .then((response) => {
@@ -54,7 +56,8 @@ function ReservationModal({
   onSuccess,
   onClose,
 }: ReservationModalProps) {
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState<string | undefined>();
+
   return (
     <div
       className="modal-backdrop"
@@ -87,13 +90,13 @@ function ReservationModal({
             <label htmlFor="phone-number" className="phone-label">
               Phone Number (optional)
             </label>
-            <input
+            <PhoneInput
               id="phone-number"
-              type="tel"
-              placeholder="(555) 123-4567"
+              defaultCountry="US"
+              placeholder="Enter phone number"
+              autoComplete="tel"
               value={phoneNumber}
-              onChange={(event) => setPhoneNumber(event.target.value)}
-              className="phone-input"
+              onChange={setPhoneNumber}
             />
             <p className="phone-note">Receive SMS when laundry is complete</p>
           </div>
