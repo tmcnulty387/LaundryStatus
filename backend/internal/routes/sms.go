@@ -2,8 +2,8 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/tmcnulty387/LaundryStatus/backend/internal/config"
 	"github.com/twilio/twilio-go"
@@ -22,10 +22,16 @@ func sendSms(cfg *config.Config, args reservationParams) {
 		Password: cfg.TwilioAuthToken,
 	})
 
+	machineType := "Dryer"
+	if args.IsWasher {
+		machineType = "Washer"
+	}
+	msg := fmt.Sprintf("Your laundry in %s #%d in the %s laundry room is done!", machineType, args.MachineID, args.RoomSlug.ToName())
+
 	params := &twilioApi.CreateMessageParams{}
 	params.SetTo(*args.PhoneNumber)
 	params.SetFrom(cfg.TwilioFromNumber)
-	params.SetBody("Your laundry in " + args.RoomSlug.ToName() + " laundry room, #" + strconv.Itoa(int(args.MachineID)) + " is done!")
+	params.SetBody(msg)
 
 	resp, err := client.Api.CreateMessage(params)
 	if err != nil {
