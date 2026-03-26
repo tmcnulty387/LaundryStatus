@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
-	"github.com/tmcnulty387/LaundryStatus/internal/config"
-	repo "github.com/tmcnulty387/LaundryStatus/internal/repository/sqlc"
+	"github.com/tmcnulty387/LaundryStatus/backend/internal/config"
+	repo "github.com/tmcnulty387/LaundryStatus/backend/internal/repository/sqlc"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
@@ -40,6 +40,8 @@ func main() {
 		queries: queries,
 		pool:    pool,
 	}
+
+	// TODO: Start timers for any existing reservations
 
 	if err := api.run(api.mount()); err != nil {
 		log.Fatal("Server has failed to start: ", err)

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/tmcnulty387/LaundryStatus/internal/config"
-	repo "github.com/tmcnulty387/LaundryStatus/internal/repository/sqlc"
-	"github.com/tmcnulty387/LaundryStatus/internal/routes"
+	"github.com/tmcnulty387/LaundryStatus/backend/internal/config"
+	repo "github.com/tmcnulty387/LaundryStatus/backend/internal/repository/sqlc"
+	"github.com/tmcnulty387/LaundryStatus/backend/internal/routes"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

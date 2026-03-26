@@ -22,6 +22,13 @@ func Load() *Config {
 		port = 8080
 	}
 
+	sms := getEnv("SMS_ENABLED", "false") == "true"
+	if sms {
+		log.Println("SMS notifications are enabled")
+	} else {
+		log.Println("SMS notifications are disabled")
+	}
+
 	return &Config{
 		DatabaseURL:      getEnv("GOOSE_DBSTRING", ""),
 		Host:             getEnv("HOST", "localhost"),
@@ -29,7 +36,7 @@ func Load() *Config {
 		TwilioAccountSID: getEnv("TWILIO_ACCOUNT_SID", ""),
 		TwilioAuthToken:  getEnv("TWILIO_AUTH_TOKEN", ""),
 		TwilioFromNumber: getEnv("TWILIO_FROM_NUMBER", ""),
-		SMSEnabled:       getEnv("SMS_ENABLED", "false") == "true",
+		SMSEnabled:       sms,
 	}
 }
 

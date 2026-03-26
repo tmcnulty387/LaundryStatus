@@ -11,6 +11,7 @@ import (
 type Querier interface {
 	ClearReservation(ctx context.Context, arg ClearReservationParams) error
 	GetMachines(ctx context.Context, roomSlug string) ([]GetMachinesRow, error)
+	IsWasher(ctx context.Context, arg IsWasherParams) (bool, error)
 	ReservationExists(ctx context.Context, arg ReservationExistsParams) (bool, error)
 	ReserveMachine(ctx context.Context, arg ReserveMachineParams) error
 	SetMachineAvailable(ctx context.Context, arg SetMachineAvailableParams) error

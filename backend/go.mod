@@ -1,4 +1,4 @@
-module github.com/tmcnulty387/LaundryStatus
+module github.com/tmcnulty387/LaundryStatus/backend
 
 go 1.26.0
 

@@ -71,6 +71,25 @@ func (q *Queries) GetMachines(ctx context.Context, roomSlug string) ([]GetMachin
 	return items, nil
 }
 
+const isWasher = `-- name: IsWasher :one
+SELECT is_washer
+FROM machine
+WHERE room_slug = $1
+    AND id = $2
+`
+
+type IsWasherParams struct {
+	RoomSlug string `json:"room_slug"`
+	ID       int32  `json:"id"`
+}
+
+func (q *Queries) IsWasher(ctx context.Context, arg IsWasherParams) (bool, error) {
+	row := q.db.QueryRow(ctx, isWasher, arg.RoomSlug, arg.ID)
+	var is_washer bool
+	err := row.Scan(&is_washer)
+	return is_washer, err
+}
+
 const reservationExists = `-- name: ReservationExists :one
 SELECT EXISTS (
         SELECT 1

@@ -6,31 +6,52 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type RoomSlug string
+type roomSlug string
 
 const (
-	ResidenceHallA RoomSlug = "residence-hall-a"
-	ResidenceHallB RoomSlug = "residence-hall-b"
-	ResidenceHallC RoomSlug = "residence-hall-c"
-	Gleason        RoomSlug = "kate-gleason"
-	Gibson         RoomSlug = "gibson"
-	Peterson       RoomSlug = "peterson"
-	SolHeumann     RoomSlug = "sol-heumann"
+	ResidenceHallA roomSlug = "residence-hall-a"
+	ResidenceHallB roomSlug = "residence-hall-b"
+	ResidenceHallC roomSlug = "residence-hall-c"
+	KateGleason    roomSlug = "kate-gleason"
+	Gibson         roomSlug = "gibson"
+	Peterson       roomSlug = "peterson"
+	SolHeumann     roomSlug = "sol-heumann"
 )
 
-var validRoomSlugs = map[RoomSlug]struct{}{
+var validRoomSlugs = map[roomSlug]struct{}{
 	ResidenceHallA: {},
 	ResidenceHallB: {},
 	ResidenceHallC: {},
-	Gleason:        {},
+	KateGleason:    {},
 	Gibson:         {},
 	Peterson:       {},
 	SolHeumann:     {},
 }
 
-func (r RoomSlug) valid() bool {
+func (r roomSlug) isValid() bool {
 	_, ok := validRoomSlugs[r]
 	return ok
+}
+
+func (r roomSlug) ToName() string {
+	switch r {
+	case ResidenceHallA:
+		return "Residence Hall A"
+	case ResidenceHallB:
+		return "Residence Hall B"
+	case ResidenceHallC:
+		return "Residence Hall C"
+	case KateGleason:
+		return "Kate Gleason"
+	case Gibson:
+		return "Gibson"
+	case Peterson:
+		return "Peterson"
+	case SolHeumann:
+		return "Sol Heumann"
+	default:
+		return string(r)
+	}
 }
 
 type machine struct {
@@ -64,8 +85,9 @@ type createReservationBody struct {
 }
 
 type reservationParams struct {
-	RoomSlug    RoomSlug
+	RoomSlug    roomSlug
 	MachineID   int32
 	EndAt       time.Time
 	PhoneNumber *string
+	IsWasher    bool
 }

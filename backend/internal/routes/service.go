@@ -6,9 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/tmcnulty387/LaundryStatus/internal/config"
-	repo "github.com/tmcnulty387/LaundryStatus/internal/repository/sqlc"
-	"github.com/tmcnulty387/LaundryStatus/internal/sms"
+	"github.com/tmcnulty387/LaundryStatus/backend/internal/config"
+	repo "github.com/tmcnulty387/LaundryStatus/backend/internal/repository/sqlc"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,10 +16,11 @@ import (
 var ErrEndTimeInPast = errors.New("reservation end time is in the past")
 
 type Service interface {
-	GetMachines(ctx context.Context, room RoomSlug) (machinesResponse, error)
+	GetMachines(ctx context.Context, room roomSlug) (machinesResponse, error)
 	CreateReservation(ctx context.Context, args reservationParams) error
-	SetMachineAvailable(ctx context.Context, room RoomSlug, machineID int32) error
-	SetMachineOutOfOrder(ctx context.Context, room RoomSlug, machineID int32) error
+	SetMachineAvailable(ctx context.Context, room roomSlug, machineID int32) error
+	SetMachineOutOfOrder(ctx context.Context, room roomSlug, machineID int32) error
+	IsWasher(ctx context.Context, room roomSlug, machineID int32) (bool, error)
 }
 
 type svc struct {
@@ -33,7 +33,7 @@ func NewService(repo *repo.Queries, pool *pgxpool.Pool, cfg *config.Config) Serv
 	return &svc{repo: repo, pool: pool, cfg: cfg}
 }
 
-func (s *svc) GetMachines(ctx context.Context, room RoomSlug) (machinesResponse, error) {
+func (s *svc) GetMachines(ctx context.Context, room roomSlug) (machinesResponse, error) {
 	rows, err := s.repo.GetMachines(ctx, string(room))
 	if err != nil {
 		return machinesResponse{}, err
@@ -59,6 +59,17 @@ func (s *svc) GetMachines(ctx context.Context, room RoomSlug) (machinesResponse,
 	}
 
 	return resp, nil
+}
+
+func (s *svc) IsWasher(ctx context.Context, room roomSlug, machineID int32) (bool, error) {
+	ret, err := s.repo.IsWasher(ctx, repo.IsWasherParams{
+		RoomSlug: string(room),
+		ID:       machineID,
+	})
+	if err != nil {
+		return false, err
+	}
+	return ret, nil
 }
 
 func (s *svc) CreateReservation(ctx context.Context, args reservationParams) error {
@@ -106,7 +117,7 @@ func (s *svc) CreateReservation(ctx context.Context, args reservationParams) err
 	return nil
 }
 
-func (s *svc) SetMachineAvailable(ctx context.Context, room RoomSlug, machineID int32) error {
+func (s *svc) SetMachineAvailable(ctx context.Context, room roomSlug, machineID int32) error {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
 		return err
@@ -131,7 +142,7 @@ func (s *svc) SetMachineAvailable(ctx context.Context, room RoomSlug, machineID 
 	return nil
 }
 
-func (s *svc) SetMachineOutOfOrder(ctx context.Context, room RoomSlug, machineID int32) error {
+func (s *svc) SetMachineOutOfOrder(ctx context.Context, room roomSlug, machineID int32) error {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
 		return err
@@ -184,7 +195,7 @@ func (s *svc) awaitReservationEnd(ctx context.Context, args reservationParams) e
 	}
 	if args.PhoneNumber != nil {
 		log.Printf("Sending SMS to %s for reservation end", *args.PhoneNumber)
-		sms.SendSms(s.cfg, *args.PhoneNumber) // checks if sms is enabled internally
+		sendSms(s.cfg, args) // checks if sms is enabled internally
 	}
 	log.Printf("Reservation successfully ended: %s %d %s", args.RoomSlug, args.MachineID, args.EndAt)
 	return nil

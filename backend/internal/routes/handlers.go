@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/tmcnulty387/LaundryStatus/internal/json"
+	"github.com/tmcnulty387/LaundryStatus/backend/internal/json"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -52,11 +52,20 @@ func (h *handler) CreateReservation(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	isWasher, err := h.service.IsWasher(r.Context(), room, machineId)
+	if err != nil {
+		log.Printf("Failed to check if machine is washer: %v", err)
+		http.Error(w, "Failed to check machine type", http.StatusInternalServerError)
+		return
+	}
+
 	if err := h.service.CreateReservation(r.Context(), reservationParams{
 		RoomSlug:    room,
 		MachineID:   machineId,
 		EndAt:       epochToTime(body.EndAt),
 		PhoneNumber: body.PhoneNumber,
+		IsWasher:    isWasher,
 	}); err != nil {
 		if errors.Is(err, ErrEndTimeInPast) {
 			http.Error(w, "Reservation end time must be in the future", http.StatusBadRequest)
@@ -106,9 +115,9 @@ func (h *handler) SetMachineOutOfOrder(w http.ResponseWriter, r *http.Request) {
 	json.Write(w, http.StatusOK, nil)
 }
 
-func getRoomSlug(w http.ResponseWriter, r *http.Request) (RoomSlug, error) {
-	room := RoomSlug(chi.URLParam(r, "room_slug"))
-	if !room.valid() {
+func getRoomSlug(w http.ResponseWriter, r *http.Request) (roomSlug, error) {
+	room := roomSlug(chi.URLParam(r, "room_slug"))
+	if !room.isValid() {
 		http.Error(w, "Invalid room slug", http.StatusBadRequest)
 		return "", errors.New("Invalid room slug")
 	}

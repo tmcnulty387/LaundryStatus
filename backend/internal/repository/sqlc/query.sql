@@ -40,3 +40,9 @@ SELECT EXISTS (
         WHERE room_slug = $1
             AND machine_id = $2
     ) AS exists;
+
+-- name: IsWasher :one
+SELECT is_washer
+FROM machine
+WHERE room_slug = $1
+    AND id = $2;
