@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App.tsx";
+import { CookiesProvider } from "react-cookie";
 
 const router = createBrowserRouter([
   { path: "/", element: <App roomSlug="/" /> },
@@ -16,6 +17,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <CookiesProvider defaultSetOptions={{ path: "/" }}>
+      <RouterProvider router={router} />
+    </CookiesProvider>
   </StrictMode>,
 );

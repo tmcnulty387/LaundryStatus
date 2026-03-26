@@ -1,7 +1,8 @@
-import { useState, type SubmitEvent } from "react";
+import { type SubmitEvent } from "react";
 import "react-phone-number-input/style.css";
 import PhoneInput from "react-phone-number-input";
 import type { Machine } from "../utils";
+import { useCookies } from "react-cookie";
 
 type ReservationModalProps = {
   machine: Machine;
@@ -56,7 +57,7 @@ function ReservationModal({
   onSuccess,
   onClose,
 }: ReservationModalProps) {
-  const [phoneNumber, setPhoneNumber] = useState<string | undefined>();
+  const [cookies, setCookies, removeCookie] = useCookies(["phoneNumber"]);
 
   return (
     <div
@@ -80,7 +81,7 @@ function ReservationModal({
               minutes,
               roomSlug,
               machine.id,
-              phoneNumber,
+              cookies.phoneNumber,
               onSuccess,
               onClose,
             )
@@ -95,8 +96,12 @@ function ReservationModal({
               defaultCountry="US"
               placeholder="Enter phone number"
               autoComplete="tel"
-              value={phoneNumber}
-              onChange={setPhoneNumber}
+              value={cookies.phoneNumber}
+              onChange={(value) =>
+                value
+                  ? setCookies("phoneNumber", value, { path: "/" })
+                  : removeCookie("phoneNumber")
+              }
             />
             <p className="phone-note">Receive SMS when laundry is complete</p>
           </div>

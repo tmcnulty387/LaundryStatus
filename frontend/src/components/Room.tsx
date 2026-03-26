@@ -64,8 +64,6 @@ function Room({ roomSlug }: { roomSlug: string }) {
     );
   }
 
-  console.log(data);
-
   return (
     <>
       <main className="room-page">
