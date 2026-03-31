@@ -7,13 +7,16 @@ import (
 )
 
 type Config struct {
-	DatabaseURL      string
-	Port             int
-	Host             string
-	TwilioAccountSID string
-	TwilioAuthToken  string
-	TwilioFromNumber string
-	SMSEnabled       bool
+	DatabaseURL       string
+	GooseMigrationDir string
+	GooseDriver       string
+	RunMigrations     bool
+	Host              string
+	Port              int
+	TwilioAccountSID  string
+	TwilioAuthToken   string
+	TwilioFromNumber  string
+	SMSEnabled        bool
 }
 
 func Load() *Config {
@@ -30,13 +33,16 @@ func Load() *Config {
 	}
 
 	return &Config{
-		DatabaseURL:      getEnv("GOOSE_DBSTRING", ""),
-		Host:             getEnv("HOST", "localhost"),
-		Port:             port,
-		TwilioAccountSID: getEnv("TWILIO_ACCOUNT_SID", ""),
-		TwilioAuthToken:  getEnv("TWILIO_AUTH_TOKEN", ""),
-		TwilioFromNumber: getEnv("TWILIO_FROM_NUMBER", ""),
-		SMSEnabled:       sms,
+		DatabaseURL:       getEnv("DATABASE_URL", ""),
+		GooseMigrationDir: getEnv("GOOSE_MIGRATION_DIR", "/migrations"),
+		GooseDriver:       getEnv("GOOSE_DRIVER", "postgres"),
+		RunMigrations:     getEnv("RUN_MIGRATIONS", "false") == "true",
+		Host:              getEnv("HOST", "0.0.0.0"),
+		Port:              port,
+		TwilioAccountSID:  getEnv("TWILIO_ACCOUNT_SID", ""),
+		TwilioAuthToken:   getEnv("TWILIO_AUTH_TOKEN", ""),
+		TwilioFromNumber:  getEnv("TWILIO_FROM_NUMBER", ""),
+		SMSEnabled:        sms,
 	}
 }
 
