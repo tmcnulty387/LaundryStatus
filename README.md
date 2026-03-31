@@ -7,15 +7,19 @@ be able to reserve machines using this website and enter their phone number to
 recieve a SMS notification when their laundry is ready.
 
 ## Build Instructions
-Backend:
 ```bash
-cd backend/
 # Add env variables
 cp .env.example .env
 # Start db
 podman compose up db
-# View db from CLI
-PGPASSWORD=postgres psql -h localhost -U postgres -d laundry
+# Start backend
+air
+# Start frontend
+npm --prefix frontend run dev
+```
+
+## Database
+```bash
 # Initialize db
 source .env
 goose up
@@ -23,27 +27,6 @@ goose up
 goose down
 # Create new migration
 goose -dir backend/internal/adapters/migrations create {migration_name} sql
-# Stop db
-podman compose down db
-# Start backend (air)
-air --build.cmd "go build -o ./tmp/api ./cmd" --build.bin "./tmp/api"
-# Start backend (podman)
-podman compose up backend
+# View db from CLI
+PGPASSWORD=postgres psql -h localhost -U postgres -d laundry
 ```
-
-frontend:
-```
-cd frontend/
-npm i
-npm run dev
-```
-
-## Services
-
-| Service  | URL                    | Description           |
-|----------|------------------------|-----------------------|
-| Frontend | http://localhost:3000  | React+Vite web app    |
-| Backend  | http://localhost:8080  | Go RESTful API        |
-| Database | http://localhost:5432  | PostgreSQL 16         |
-
-
