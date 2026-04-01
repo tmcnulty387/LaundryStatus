@@ -5,7 +5,7 @@ cleanup() {
     kill 0
 }
 
-trap cleanup SIGINT SIGTERM
+trap cleanup SIGINT
 
 podman compose up -d db
 
