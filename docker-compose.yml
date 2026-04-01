@@ -15,7 +15,8 @@ services:
 
   backend:
     build:
-      dockerfile: backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     env_file: ./.env
     depends_on:
       db:
@@ -24,7 +25,8 @@ services:
 
   frontend:
     build:
-      dockerfile: frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     env_file: ./.env
     depends_on:
       - backend

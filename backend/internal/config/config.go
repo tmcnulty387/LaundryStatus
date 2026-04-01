@@ -19,9 +19,9 @@ type Config struct {
 }
 
 func Load() *Config {
-	port, err := strconv.Atoi(getEnv("PORT", "8080"))
+	port, err := strconv.Atoi(getEnv("PORT", "3000"))
 	if err != nil {
-		port = 8080
+		port = 3000 
 	}
 
 	sms := getEnv("SMS_ENABLED", "false") == "true"

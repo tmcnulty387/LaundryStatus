@@ -1,21 +1,33 @@
-FROM node:24-alpine AS build
+# --- Build Stage ---
+FROM node:22-alpine AS builder
 
+# Set working directory
 WORKDIR /app
 
-COPY frontend/package*.json ./frontend/
-WORKDIR /app/frontend
-RUN npm ci
+# Install dependencies first (take advantage of Docker caching)
+COPY package*.json ./
+RUN npm install
 
-COPY frontend/. .
+# Copy source
+COPY . .
+
+# Build the Vite app (produces static files in dist/)
 RUN npm run build
 
-FROM nginx:1.27-alpine
+# --- Runtime Stage ---
+FROM nginxinc/nginx-unprivileged:stable-alpine
 
-RUN rm /etc/nginx/conf.d/default.conf
+# Remove the user directive from the nginx configuration
+RUN sed -i '/^user/d' /etc/nginx/nginx.conf
 
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/frontend/dist /usr/share/nginx/html
+# Copy built static files from builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
 
+# Copy nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose application port
 EXPOSE 8080
 
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
