@@ -7,7 +7,7 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
-#podman compose up -d db
+podman compose up -d db
 
 air &
 npm --prefix frontend run dev &
