@@ -73,7 +73,7 @@ a {
 
 .navbar {
   display: grid;
-  grid-template-columns: minmax(auto, max-content) minmax(0, 1fr);
+  grid-template-columns: fit-content(25%) minmax(0, 1fr);
   align-items: center;
   padding: 0.75rem 1rem;
   background: #f36d21;
@@ -87,6 +87,8 @@ a {
 }
 
 .brand-link {
+  min-width: 0;
+  max-width: 100%;
   color: #fff;
   text-decoration: none;
   font-size: 0.95rem;
@@ -94,7 +96,8 @@ a {
   letter-spacing: 0.02em;
   text-transform: uppercase;
   white-space: nowrap;
-  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-room-links {
