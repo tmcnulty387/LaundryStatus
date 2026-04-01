@@ -10,7 +10,6 @@ type Config struct {
 	DatabaseURL       string
 	GooseMigrationDir string
 	GooseDriver       string
-	RunMigrations     bool
 	Host              string
 	Port              int
 	TwilioAccountSID  string
@@ -36,7 +35,6 @@ func Load() *Config {
 		DatabaseURL:       getEnv("DATABASE_URL", ""),
 		GooseMigrationDir: getEnv("GOOSE_MIGRATION_DIR", "/migrations"),
 		GooseDriver:       getEnv("GOOSE_DRIVER", "postgres"),
-		RunMigrations:     getEnv("RUN_MIGRATIONS", "false") == "true",
 		Host:              getEnv("HOST", "0.0.0.0"),
 		Port:              port,
 		TwilioAccountSID:  getEnv("TWILIO_ACCOUNT_SID", ""),
