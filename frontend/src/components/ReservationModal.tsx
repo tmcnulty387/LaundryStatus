@@ -103,7 +103,11 @@ function ReservationModal({
                   : removeCookie("phoneNumber")
               }
             />
-            <p className="phone-note">Receive SMS when laundry is complete</p>
+            <p className="phone-note">
+              By entering your phone number, you agree to have a SMS message
+              sent to you when your laundry is done. Message and data rates may
+              apply.
+            </p>
           </div>
 
           <div className="confirmation-buttons">
