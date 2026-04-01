@@ -19,9 +19,9 @@ type Config struct {
 }
 
 func Load() *Config {
-	port, err := strconv.Atoi(getEnv("PORT", "3000"))
+	port, err := strconv.Atoi(getEnv("PORT", "8080"))
 	if err != nil {
-		port = 3000 
+		port = 8080 
 	}
 
 	sms := getEnv("SMS_ENABLED", "false") == "true"
@@ -35,7 +35,7 @@ func Load() *Config {
 		DatabaseURL:       getEnv("DATABASE_URL", ""),
 		GooseMigrationDir: getEnv("GOOSE_MIGRATION_DIR", "/migrations"),
 		GooseDriver:       getEnv("GOOSE_DRIVER", "postgres"),
-		Host:              getEnv("HOST", "0.0.0.0"),
+		Host:              getEnv("HOST", "::"),
 		Port:              port,
 		TwilioAccountSID:  getEnv("TWILIO_ACCOUNT_SID", ""),
 		TwilioAuthToken:   getEnv("TWILIO_AUTH_TOKEN", ""),

@@ -15,5 +15,5 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /laundry-backend ./cmd
 FROM gcr.io/distroless/base-debian12:nonroot
 COPY --from=build /laundry-backend /laundry-backend
 
-EXPOSE 3000
+EXPOSE 8080
 ENTRYPOINT ["/laundry-backend"]
