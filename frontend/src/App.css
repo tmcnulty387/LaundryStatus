@@ -720,6 +720,11 @@ a {
   outline: none;
 }
 
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @media (max-width: 640px) {
   .navbar {
     padding: 0.65rem 0.75rem;
@@ -780,4 +785,18 @@ a {
   margin-top: 0.25rem;
   font-size: 0.9rem;
   color: #7a271a;
+}
+
+.sms-consent-container {
+  display: flex;
+}
+
+.sms-consent-label {
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+  color: #13274f;
+}
+
+.sms-consent-checkbox {
+  transform: scale(1.5);
 }

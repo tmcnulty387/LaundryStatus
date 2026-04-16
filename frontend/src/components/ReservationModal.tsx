@@ -1,8 +1,12 @@
-import { type SubmitEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import "react-phone-number-input/style.css";
 import PhoneInput from "react-phone-number-input";
 import type { Machine } from "../utils";
 import { useCookies } from "react-cookie";
+
+interface CookieValues {
+  phoneNumber?: string;
+}
 
 type ReservationModalProps = {
   machine: Machine;
@@ -57,7 +61,13 @@ function ReservationModal({
   onSuccess,
   onClose,
 }: ReservationModalProps) {
-  const [cookies, setCookies, removeCookie] = useCookies(["phoneNumber"]);
+  const [cookies, setCookies, removeCookie] = useCookies<
+    "phoneNumber",
+    CookieValues
+  >(["phoneNumber"]);
+  const [smsConsent, setSmsConsent] = useState(false);
+
+  const canSubmit = (cookies.phoneNumber ?? "").trim() === "" || smsConsent;
 
   return (
     <div
@@ -103,11 +113,20 @@ function ReservationModal({
                   : removeCookie("phoneNumber")
               }
             />
-            <p className="phone-note">
-              By entering your phone number, you agree to have a SMS message
-              sent to you when your laundry is done. Message and data rates may
-              apply.
-            </p>
+            <div className="sms-consent-container">
+              <input
+                type="checkbox"
+                id="sms-consent"
+                className="sms-consent-checkbox"
+                checked={smsConsent}
+                onChange={(e) => setSmsConsent(e.target.checked)}
+              />
+              <label htmlFor="sms-consent" className="sms-consent-label">
+                I agree to receive a one-time SMS text message from
+                LaundryStatus when my laundry is complete. Message and data
+                rates may apply.
+              </label>
+            </div>
           </div>
 
           <div className="confirmation-buttons">
@@ -118,7 +137,11 @@ function ReservationModal({
             >
               Cancel
             </button>
-            <button type="submit" className="confirmation-button submit-button">
+            <button
+              disabled={!canSubmit}
+              type="submit"
+              className="confirmation-button submit-button"
+            >
               Submit
             </button>
           </div>
