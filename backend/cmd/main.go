@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"time"
 
 	"github.com/tmcnulty387/LaundryStatus/backend/internal/config"
 	repo "github.com/tmcnulty387/LaundryStatus/backend/internal/repository/sqlc"
@@ -32,13 +33,23 @@ func main() {
 	defer cancel()
 
 	// Connect to database
+	timeout := time.AfterFunc(10*time.Second, func() {
+		log.Fatal("Failed to connect to database: timed out after 10 seconds")
+	})
 	pool, err := pgxpool.New(ctx, cfg.DatabaseURL)
+	timeout.Stop()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
+
+	timeout = time.AfterFunc(10*time.Second, func() {
+		log.Fatal("Failed to ping database: timed out after 10 seconds")
+	})
 	if err := pool.Ping(ctx); err != nil {
 		log.Fatalf("Failed to ping database: %v", err)
 	}
+	timeout.Stop()
+
 	defer pool.Close()
 	log.Println("Connected to database at", cfg.DatabaseURL)
 
